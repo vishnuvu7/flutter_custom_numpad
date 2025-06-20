@@ -1,7 +1,7 @@
-name: flutter_numpad
+name: flutter_custom_numpad
 description: "A customizable number pad widget for Flutter applications."
-version: 0.1.0
-homepage: https://github.com/vishnuvu7/flutter_numpad
+version: 0.0.1
+homepage: https://github.com/vishnuvu7/flutter_custom_numpad
 
 environment:
   sdk: ^3.8.1

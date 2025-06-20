@@ -2,7 +2,7 @@
 
 ## 0.0.1
 
-* Initial release of flutter_numpad package
+* Initial release of flutter_custom_numpad package
 * Added NumberPad widget with customizable themes
 * Added NumberPadTheme class with light and dark presets
 * Support for decimal point input

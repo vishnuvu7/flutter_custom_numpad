@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_numpad/flutter_numpad.dart';
+import 'package:flutter_custom_numpad/flutter_custom_numpad.dart';
 
 void main() {
   group('NumberPad Widget Tests', () {

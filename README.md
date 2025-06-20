@@ -11,7 +11,7 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/to/develop-packages).
 -->
 
-# flutter_numpad
+# flutter_custom_numpad
 
 A customizable number pad widget for Flutter applications.
 
@@ -30,7 +30,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_numpad: ^0.0.1
+  flutter_custom_numpad: ^0.0.1
 ```
 
 ## Usage
@@ -39,7 +39,7 @@ dependencies:
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:flutter_numpad/flutter_numpad.dart';
+import 'package:flutter_custom_numpad/flutter_custom_numpad.dart';
 
 class MyWidget extends StatefulWidget {
   @override

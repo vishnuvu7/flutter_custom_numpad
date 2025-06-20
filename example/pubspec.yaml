@@ -1,5 +1,5 @@
-name: flutter_numpad_example
-description: Example app for flutter_numpad package
+name: flutter_custom_numpad_example
+description: Example app for flutter_custom_numpad package
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_numpad:
+  flutter_custom_numpad:
     path: ../
 
 dev_dependencies:

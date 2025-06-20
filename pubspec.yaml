@@ -1,7 +1,7 @@
 name: flutter_numpad
 description: "A customizable number pad widget for Flutter applications."
-version: 0.0.1
-homepage: https://github.com/Tamimah/flutter_numpad
+version: 0.1.0
+homepage: https://github.com/vishnuvu7/flutter_numpad
 
 environment:
   sdk: ^3.8.1
@@ -14,7 +14,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

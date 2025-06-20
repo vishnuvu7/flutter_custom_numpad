@@ -13,6 +13,8 @@ and the Flutter guide for
 
 # flutter_custom_numpad
 
+[![pub package](https://img.shields.io/pub/v/flutter_custom_numpad.svg)](https://pub.dev/packages/flutter_custom_numpad)
+
 A customizable number pad widget for Flutter applications.
 
 ## Features

@@ -122,7 +122,7 @@ class _NumberPadExampleState extends State<NumberPadExample> {
                   ),
                   builder: (context) {
                     final TextEditingController modalController =
-                        TextEditingController(text: _controller.text);
+                    TextEditingController(text: _controller.text);
                     return Padding(
                       padding: EdgeInsets.only(
                         bottom: MediaQuery.of(context).viewInsets.bottom,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_custom_numpad/flutter_custom_numpad.dart';
 
@@ -226,15 +225,18 @@ void main() {
       expect(okPressed, isTrue);
     });
 
-    testWidgets('Uses light theme by default', (WidgetTester tester) async {
+    testWidgets('Follows the app color scheme by default', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(body: NumberPad(controller: controller)),
         ),
       );
 
+      final colorScheme = Theme.of(tester.element(find.text('1'))).colorScheme;
       final textWidget = tester.widget<Text>(find.text('1'));
-      expect(textWidget.style?.color, equals(Colors.black87));
+      expect(textWidget.style?.color, equals(colorScheme.onSurface));
     });
 
     testWidgets('Uses custom theme when provided', (WidgetTester tester) async {
@@ -471,14 +473,15 @@ void main() {
           ),
         );
 
-        // Test that special buttons add to text
+        await tester.tap(find.text('1'));
         await tester.tap(find.text('+'));
+        await tester.tap(find.text('2'));
         await tester.pump();
-        expect(controller.text, equals('+'));
+        expect(controller.text, equals('1+2'));
 
         await tester.tap(find.text('='));
         await tester.pump();
-        expect(controller.text, equals('+='));
+        expect(controller.text, equals('3'));
 
         await tester.tap(find.text('C'));
         await tester.pump();

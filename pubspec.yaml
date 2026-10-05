@@ -1,11 +1,19 @@
 name: flutter_custom_numpad
-description: "A customizable number pad widget for Flutter applications."
-version: 0.0.1
+description: "A customizable number pad for Flutter with PIN/OTP display, calculator, currency amount entry, input validation and theming."
+version: 2.0.0
 homepage: https://github.com/vishnuvu7/flutter_custom_numpad
+repository: https://github.com/vishnuvu7/flutter_custom_numpad
+issue_tracker: https://github.com/vishnuvu7/flutter_custom_numpad/issues
+topics:
+  - numpad
+  - keyboard
+  - pin
+  - otp
+  - calculator
 
 environment:
   sdk: ^3.8.1
-  flutter: ">=1.17.0"
+  flutter: ">=3.32.0"
 
 dependencies:
   flutter:

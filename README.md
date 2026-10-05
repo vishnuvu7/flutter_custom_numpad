@@ -1,16 +1,3 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
 # flutter_custom_numpad
 
 [![pub package](https://img.shields.io/pub/v/flutter_custom_numpad.svg)](https://pub.dev/packages/flutter_custom_numpad)
@@ -19,311 +6,215 @@ A customizable number pad widget for Flutter applications.
 
 ## Features
 
-- **Customizable Number Pad**: A clean and modern number pad widget
-- **Theme Support**: Built-in light and dark themes with customization options
-- **Flexible Configuration**: Configurable max length, decimal point, and OK button
-- **Haptic Feedback**: Optional haptic feedback for better user experience
-- **Responsive Design**: Adapts to different screen sizes
-- **Accessibility**: Proper touch targets and visual feedback
+- **Presets** for numeric input, PIN/OTP, currency amounts, a working calculator and a phone dialer, plus fully custom layouts
+- **`PinDisplay`** widget that shows PIN/OTP progress as dots, boxes or underlines
+- **Input validation**: max length, max value, decimal places, leading zeros, `TextInputFormatter`s, and an OK button that enables only for valid input
+- **Currency amounts** with cash-register style entry and locale separators
+- **Action button** for biometric unlock or "Forgot PIN?"
+- **Theming** via `NumberPadTheme`, usable directly or as a `ThemeExtension`; follows light/dark mode automatically
+- **Styling**: button shapes, borders, elevation, spacing, per-key colors and fonts, press animation
+- **Feedback**: haptics and optional click sounds
+- **Accessibility**: semantic labels for every key, large-text support and right-to-left layouts
 
 ## Installation
 
-Add this to your package's `pubspec.yaml` file:
-
 ```yaml
 dependencies:
-  flutter_custom_numpad: ^0.0.1
+  flutter_custom_numpad: ^0.1.0
 ```
 
 ## Usage
 
-### Basic Usage
+### Basic usage
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_custom_numpad/flutter_custom_numpad.dart';
+final _controller = TextEditingController();
 
-class MyWidget extends StatefulWidget {
-  @override
-  _MyWidgetState createState() => _MyWidgetState();
-}
-
-class _MyWidgetState extends State<MyWidget> {
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Number Pad Example')),
-      body: Column(
-        children: [
-          // Display the current input
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _controller,
-              readOnly: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Enter Number',
-              ),
-            ),
-          ),
-          // Number pad
-          Expanded(
-            child: NumberPad(
-              controller: _controller,
-              onChanged: (value) {
-                print('Current value: $value');
-              },
-            ),
-          ),
-        ],
+Column(
+  children: [
+    TextField(controller: _controller, readOnly: true),
+    Expanded(
+      child: NumberPad(
+        controller: _controller,
+        onChanged: (value) => print('Current value: $value'),
       ),
-    );
-  }
-}
-```
-
-### Preset Configurations
-
-The NumberPad comes with several preset configurations for common use cases:
-
-#### Phone Dialer
-```dart
-NumberPad.phoneDialer(
-  controller: _controller,
-  onChanged: (value) {
-    print('Phone number: $value');
-  },
+    ),
+  ],
 )
 ```
-- No decimal point
-- No OK button
-- Max length: 15 digits
-- Includes special buttons: +, #, *, C (clear), backspace
-- Optimized for phone numbers
 
-#### Calculator
+`NumberPad` fills the space it's given, so place it inside an `Expanded` or a `SizedBox` with a height.
+
+### PIN / OTP with `PinDisplay`
+
+Share one controller between `PinDisplay` and `NumberPad.otp()`:
+
 ```dart
-NumberPad.calculator(
-  controller: _controller,
-  onChanged: (value) {
-    print('Calculator input: $value');
-  },
+Column(
+  children: [
+    PinDisplay(
+      controller: _controller,
+      length: 4,
+      shape: PinDisplayShape.dot, // or .box / .underline
+      hasError: _wrongPin,
+      onCompleted: (pin) => _verify(pin),
+    ),
+    Expanded(
+      child: NumberPad.otp(
+        controller: _controller,
+        length: 4,
+        showOkButton: false,
+        action: NumberPadAction(
+          icon: const Icon(Icons.fingerprint),
+          semanticLabel: 'Unlock with fingerprint',
+          onPressed: _authenticate,
+        ),
+      ),
+    ),
+  ],
 )
 ```
-- Includes decimal point
-- No OK button
-- Max length: 20 digits
-- Includes special buttons: +, -, ×, ÷, =, %, √, C
-- Optimized for calculations
 
-#### OTP Input
-```dart
-NumberPad.otp(
-  controller: _controller,
-  onChanged: (value) {
-    print('OTP input: $value');
-  },
-  onOkPressed: () {
-    print('OTP submitted: ${_controller.text}');
-  },
-)
-```
-- No decimal point
-- Includes OK button
-- Max length: 6 digits
-- Optimized for PIN/OTP entry
+### Numeric input with validation
 
-#### Numeric Input
 ```dart
 NumberPad.numeric(
   controller: _controller,
-  maxLength: 8,
+  maxDecimalPlaces: 2,
+  maxValue: 10000,
   showOkButton: true,
-  showDecimalPoint: true,
-  onChanged: (value) {
-    print('Numeric input: $value');
-  },
-  onOkPressed: () {
-    print('Value submitted: ${_controller.text}');
-  },
+  canSubmit: (text) => text.isNotEmpty, // OK is disabled until true
+  onOkPressed: () => print('Submitted: ${_controller.text}'),
 )
 ```
-- Configurable decimal point and OK button
-- Configurable max length (default: 10)
-- General purpose numeric input
 
-#### Custom Layout
+You can also pass any `TextInputFormatter`s through `inputFormatters`, disable keys with `disabledKeys`, or turn off the whole pad with `enabled: false`.
+
+### Currency amounts
+
+```dart
+NumberPad.amount(
+  controller: _controller,
+  decimalDigits: 2,
+  decimalSeparator: '.',
+  groupSeparator: ',',
+  centsFirst: true, // typing 1, 2, 3 shows 1.23
+  maxValue: 1000000,
+  onAmountChanged: (double? value) => print(value),
+)
+```
+
+The controller holds the formatted text (for example `1,234.56`); `onAmountChanged` receives the parsed number. With `centsFirst: false` the pad shows a decimal key instead of `00`.
+
+### Calculator
+
+```dart
+NumberPad.calculator(
+  controller: _controller,
+  onResult: (double result) => print('= $result'),
+)
+```
+
+`=` evaluates the expression with standard precedence (`×`/`÷` before `+`/`-`), `%` divides the preceding number by 100, and `√` takes a square root. Invalid results such as division by zero show `Error`. The parser is also available directly via `NumberPadCalculator.evaluate('2+3×4')`.
+
+### Phone dialer
+
+```dart
+NumberPad.phoneDialer(controller: _controller)
+```
+
+Digits plus `*` and `#`, up to 15 characters.
+
+### Custom layout
+
 ```dart
 NumberPad.custom(
   controller: _controller,
   layout: [
-    ['A', 'B', 'C', 'D'],
-    ['1', '2', '3', '4'],
-    ['5', '6', '7', '8'],
-    ['9', '0', 'CLEAR', 'SUBMIT'],
+    ['1', '2', '3', 'A'],
+    ['4', '5', '6', 'B'],
+    ['7', '8', '9', 'CLEAR'],
+    [NumberPad.okKey, '0', NumberPad.backspaceKey],
   ],
   customButtonHandlers: {
-    'CLEAR': () {
-      controller.clear();
-      print('Custom clear button pressed!');
-    },
-    'SUBMIT': () {
-      print('Custom submit! Value: ${controller.text}');
-    },
+    'A': () => print('A pressed'),
+    'B': () => print('B pressed'),
+    'CLEAR': () => _controller.clear(),
   },
-  onChanged: (value) {
-    print('Custom layout input: $value');
-  },
+  onOkPressed: () => print('Submitted'),
 )
 ```
-- Fully customizable button layout
-- Custom button handlers for special actions
-- Flexible configuration for any use case
-- Regular number buttons work as expected
 
-### Advanced Usage with Custom Theme
+Layouts can use digits, `.`, `C`, `NumberPad.backspaceKey`, `NumberPad.okKey`, `NumberPad.actionKey`, and any key listed in `customButtonHandlers`. Use `''` for an empty slot.
+
+## Theming
+
+Without a theme, the pad uses colors from the app's `ColorScheme` and follows light/dark mode.
+
+### App-wide theme
 
 ```dart
-NumberPad(
-  controller: _controller,
-  maxLength: 10,
-  showOkButton: true,
-  showDecimalPoint: true,
-  onChanged: (value) {
-    print('Value changed: $value');
-  },
-  onOkPressed: () {
-    print('OK pressed');
-    Navigator.pop(context);
-  },
-  theme: NumberPadTheme.dark().copyWith(
-    fontSize: 28.0,
-    borderRadius: 12.0,
-    enableHapticFeedback: false,
+MaterialApp(
+  theme: ThemeData(
+    extensions: const [
+      NumberPadTheme(
+        buttonShape: NumberPadButtonShape.circle,
+        buttonSpacing: 6,
+        enableSoundFeedback: true,
+      ),
+    ],
   ),
 )
 ```
 
-### Custom Theme
+### Per-widget theme
 
 ```dart
-final customTheme = NumberPadTheme(
-  numberColor: Colors.blue,
-  backspaceColor: Colors.red,
-  okColor: Colors.green,
-  fontSize: 26.0,
-  fontWeight: FontWeight.w600,
-  borderRadius: 10.0,
-  enableHapticFeedback: true,
-);
-
 NumberPad(
   controller: _controller,
-  theme: customTheme,
+  theme: NumberPadTheme.dark().copyWith(
+    fontSize: 28,
+    buttonBorderSide: const BorderSide(color: Colors.white24),
+    buttonColors: {NumberPad.okKey: Colors.green, '0': Colors.blue},
+    buttonFontSizes: {'0': 30},
+    buttonFontWeights: {'0': FontWeight.w900},
+  ),
 )
 ```
 
-### Custom Key Styling
+Fields are resolved in this order: the widget's `theme`, then the `NumberPadTheme` extension, then `NumberPadTheme.fromColorScheme()`.
+
+| Property | Description |
+| --- | --- |
+| `numberColor`, `backspaceColor`, `okColor`, `actionColor` | Key colors |
+| `operatorColor`, `equalsColor`, `clearColor` | Calculator symbol colors |
+| `buttonBackgroundColor`, `splashColor` | Button fill and ink splash |
+| `fontSize`, `fontWeight`, `iconSize` | Label sizing |
+| `buttonShape`, `borderRadius`, `buttonBorderSide`, `buttonElevation`, `buttonSpacing` | Button shape and spacing |
+| `enableHapticFeedback`, `enableSoundFeedback`, `enablePressAnimation` | Feedback |
+| `buttonColors`, `buttonFontSizes`, `buttonFontWeights` | Per-key overrides |
+
+## Accessibility
+
+Every key has a screen-reader label ("Delete", "Done", "Decimal point", "Square root", …). Override them for localization:
 
 ```dart
-final customTheme = NumberPadTheme.light().copyWith(
-  // Custom colors for specific buttons
-  buttonColors: {
-    'OK': Colors.green,
-    'backspace': Colors.red,
-    '0': Colors.blue,
-    '9': Colors.orange,
-  },
-  // Custom font sizes for specific buttons
-  buttonFontSizes: {
-    'OK': 20.0,
-    'backspace': 18.0,
-    '0': 28.0,
-  },
-  // Custom font weights for specific buttons
-  buttonFontWeights: {
-    'OK': FontWeight.w600,
-    '0': FontWeight.w900,
-    '9': FontWeight.w300,
-  },
-);
-
 NumberPad(
   controller: _controller,
-  theme: customTheme,
+  semanticLabels: {NumberPad.backspaceKey: 'Borrar', NumberPad.okKey: 'Listo'},
 )
 ```
 
-## API Reference
+`PinDisplay` announces progress such as "PIN, 2 of 4 digits entered".
 
-### NumberPad
+## Gestures
 
-The main number pad widget.
-
-#### Properties
-
-- `controller` (required): `TextEditingController` - Controls the input text
-- `maxLength` (optional): `int` - Maximum length of input (default: 8)
-- `onChanged` (optional): `Function(String)?` - Callback when text changes
-- `onOkPressed` (optional): `VoidCallback?` - Callback when OK button is pressed
-- `showOkButton` (optional): `bool` - Whether to show OK button (default: false)
-- `showDecimalPoint` (optional): `bool` - Whether to show decimal point (default: true)
-- `theme` (optional): `NumberPadTheme?` - Theme configuration
-- `buttonAspectRatio` (optional): `double` - Aspect ratio for buttons (default: 1.5)
-
-### NumberPadTheme
-
-Theme configuration for the number pad.
-
-#### Properties
-
-- `numberColor`: `Color?` - Color of number buttons text
-- `backspaceColor`: `Color?` - Color of backspace button icon
-- `okColor`: `Color?` - Color of OK button icon
-- `buttonBackgroundColor`: `Color?` - Background color of buttons
-- `fontSize`: `double?` - Font size of number buttons
-- `fontWeight`: `FontWeight?` - Font weight of number buttons
-- `borderRadius`: `double?` - Border radius of buttons
-- `enableHapticFeedback`: `bool` - Whether to enable haptic feedback
-- `buttonColors`: `Map<String, Color>?` - Custom colors for specific buttons
-- `buttonFontSizes`: `Map<String, double>?` - Custom font sizes for specific buttons
-- `buttonFontWeights`: `Map<String, FontWeight>?` - Custom font weights for specific buttons
-
-#### Factory Constructors
-
-- `NumberPadTheme.light()`: Creates a light theme
-- `NumberPadTheme.dark()`: Creates a dark theme
-
-#### Helper Methods
-
-- `getButtonColor(String button)`: Gets the color for a specific button
-- `getButtonFontSize(String button)`: Gets the font size for a specific button
-- `getButtonFontWeight(String button)`: Gets the font weight for a specific button
-
-## Features
-
-### Gestures
-
-- **Tap**: Add number or perform action
-- **Long Press on Backspace**: Clear all input
-- **Long Press on OK**: Clear all input
-
-### Customization
-
-The number pad is highly customizable through the `NumberPadTheme` class. You can customize:
-
-- Colors for different button types
-- Font size and weight
-- Border radius
-- Haptic feedback
-- Button aspect ratio
+- **Tap**: enter a digit or perform the key's action
+- **Long press on backspace**: clear all input
 
 ## Example
 
-See the `example` directory for a complete working example.
+See the [`example`](example) directory for a complete app covering every preset, light/dark mode and `PinDisplay`.
 
 ## Contributing
 
